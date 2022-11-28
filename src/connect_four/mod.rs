@@ -54,12 +54,19 @@ impl Default for Board {
 impl Display for Board {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), std::fmt::Error> {
         for (i, row) in self.board.iter().enumerate().rev() {
-            write!(f, "{:>2} [", i + 1)?;
+            write!(f, "{:>2} [", i)?;
             for cell in row {
                 write!(f, " {}", cell)?;
             }
             writeln!(f, " ]")?;
         }
+
+        write!(f, " x  ")?;
+        for i in 0..WIDTH {
+            write!(f, " {}", i)?;
+        }
+        writeln!(f, "  ")?;
+
         Ok(())
     }
 }
