@@ -1,20 +1,11 @@
-use board_games::connect_four::{Board, Square};
+use std::error::Error;
 
-fn main() {
-    let mut board = Board::new();
+use board_games::connect_four::game::Game;
 
-    board.play_move(1, Square::Yellow);
-    println!("Played yellow 1\n{}", board);
+fn main() -> Result<(), Box<dyn Error>> {
+    let mut game = Game::new();
 
-    board.play_move(1, Square::Yellow);
-    println!("Played yellow 1\n{}", board);
+    game.game_loop()?;
 
-    board.play_move(2, Square::Yellow);
-    println!("Played yellow 2\n{}", board);
-
-    board.play_move(2, Square::Red);
-    println!("Played red 2\n{}", board);
-
-    board.play_move(3, Square::Red);
-    println!("Played red 3\n{}", board);
+    Ok(())
 }
