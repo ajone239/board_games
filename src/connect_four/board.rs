@@ -276,6 +276,39 @@ mod test {
         "_______",
         "_______",
     ], Some(Square::Red))]
+    #[case::sw_b(&[
+        "_______",
+        "_______",
+        "___Y___",
+        "__Y____",
+        "_Y_____",
+        "Y______",
+    ], Some(Square::Yellow))]
+    #[case::sw_t(&[
+        "___Y___",
+        "__Y____",
+        "_Y_____",
+        "Y______",
+        "_______",
+        "_______",
+    ], Some(Square::Yellow))]
+    #[case::ne_b(&[
+        "_______",
+        "_______",
+        "______Y",
+        "_____Y_",
+        "____Y__",
+        "___Y___",
+    ], Some(Square::Yellow))]
+    #[case::ne_t(&[
+        "______Y",
+        "_____Y_",
+        "____Y__",
+        "___Y___",
+        "_______",
+        "_______",
+    ], Some(Square::Yellow))]
+
     fn test_check_for_win(#[case] data: &[&str; HEIGHT], #[case] expected: Option<Square>) {
         let board = Board::new_from_str_vec(data);
 
