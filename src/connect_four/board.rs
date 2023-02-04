@@ -55,6 +55,25 @@ impl Board {
         Ok(())
     }
 
+    pub fn remove_move(&mut self, column: usize, color: Square) -> Result<(), Error> {
+        let row = (0..HEIGHT).rev().find(|row| {
+            let mut is_row = self.board[*row][column] == color;
+            if *row != HEIGHT - 1 {
+                is_row &= self.board[*row + 1][column] == Square::Empty;
+            }
+            is_row
+        });
+
+        let row = match row {
+            Some(row) => row,
+            None => return Err(Error::InvalidMove(column)),
+        };
+
+        self.board[row][column] = Square::Empty;
+
+        Ok(())
+    }
+
     pub fn list_valid_moves(&self) -> Vec<usize> {
         let mut open_columns = vec![];
 
@@ -100,10 +119,10 @@ impl Board {
             directions[0] &= self.check_in_bound_same_color(i + l, j, color);
 
             // South
-            directions[1] &= self.check_in_bound_same_color(i - l, j, color);
+            directions[1] &= false; // self.check_in_bound_same_color(i - l, j, color);
 
             // East
-            directions[2] &= self.check_in_bound_same_color(i, j + l, color);
+            directions[2] &= false; // self.check_in_bound_same_color(i, j + l, color);
 
             // West
             directions[3] &= self.check_in_bound_same_color(i, j - l, color);
@@ -115,10 +134,10 @@ impl Board {
             directions[5] &= self.check_in_bound_same_color(i + l, j - l, color);
 
             // South East
-            directions[6] &= self.check_in_bound_same_color(i - l, j + l, color);
+            directions[6] &= false; // self.check_in_bound_same_color(i - l, j + l, color);
 
             // South West
-            directions[7] &= self.check_in_bound_same_color(i - l, j - l, color);
+            directions[7] &= false; // self.check_in_bound_same_color(i - l, j - l, color);
         }
 
         directions.iter().fold(false, |acc, dir| acc | dir)
@@ -176,6 +195,7 @@ mod test {
 
         assert_eq!(board, Board::new());
     }
+
     #[test]
     fn test_new_from_str_vec_with_moves() {
         let data = &[
@@ -196,6 +216,57 @@ mod test {
         expected_board.apply_move(5, Square::Yellow).unwrap();
 
         assert_eq!(board, expected_board);
+    }
+
+    #[test]
+    fn test_apply_move() {
+        let data = &[
+            "_______", "_______", "_______", "_______", "_______", "Y______",
+        ];
+
+        let mut board = Board::new();
+
+        board.apply_move(0, Square::Yellow).unwrap();
+
+        assert_eq!(board, Board::new_from_str_vec(data));
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_apply_move_fail() {
+        let data = &[
+            "Y______", "Y______", "Y______", "Y______", "Y______", "Y______",
+        ];
+
+        let mut board = Board::new_from_str_vec(data);
+
+        board.apply_move(0, Square::Yellow).unwrap();
+    }
+
+    #[test]
+    fn test_remove_move() {
+        let player_move = (0, Square::Yellow);
+        let mut board = Board::new();
+
+        board.apply_move(player_move.0, player_move.1).unwrap();
+
+        board.remove_move(player_move.0, player_move.1).unwrap();
+
+        assert_eq!(board, Board::new());
+    }
+    #[test]
+    fn test_remove_move_bound_test() {
+        let data = &[
+            "_______", "Y______", "Y______", "Y______", "Y______", "Y______",
+        ];
+        let player_move = (0, Square::Yellow);
+        let mut board = Board::new_from_str_vec(data);
+
+        board.apply_move(player_move.0, player_move.1).unwrap();
+
+        board.remove_move(player_move.0, player_move.1).unwrap();
+
+        assert_eq!(board, Board::new_from_str_vec(data));
     }
 
     #[rstest]
@@ -276,6 +347,78 @@ mod test {
         "_______",
         "_______",
     ], Some(Square::Red))]
+    #[case::horz_bl(&[
+        "_______",
+        "_______",
+        "_______",
+        "_______",
+        "_______",
+        "YYYY___",
+    ], Some(Square::Yellow))]
+    #[case::horz_bm(&[
+        "_______",
+        "_______",
+        "_______",
+        "_______",
+        "_______",
+        "_YYYY__",
+    ], Some(Square::Yellow))]
+    #[case::horz_br(&[
+        "_______",
+        "_______",
+        "_______",
+        "_______",
+        "_______",
+        "___YYYY",
+    ], Some(Square::Yellow))]
+    #[case::horz_ml(&[
+        "_______",
+        "_______",
+        "_______",
+        "YYYY___",
+        "_______",
+        "_______",
+    ], Some(Square::Yellow))]
+    #[case::horz_mm(&[
+        "_______",
+        "_______",
+        "_______",
+        "_YYYY__",
+        "_______",
+        "_______",
+    ], Some(Square::Yellow))]
+    #[case::horz_mr(&[
+        "_______",
+        "_______",
+        "_______",
+        "___YYYY",
+        "_______",
+        "_______",
+    ], Some(Square::Yellow))]
+    #[case::horz_tl(&[
+        "YYYY___",
+        "_______",
+        "_______",
+        "_______",
+        "_______",
+        "_______",
+    ], Some(Square::Yellow))]
+    #[case::horz_tm(&[
+        "_YYYY__",
+        "_______",
+        "_______",
+        "_______",
+        "_______",
+        "_______",
+    ], Some(Square::Yellow))]
+    #[case::horz_tr(&[
+        "___YYYY",
+        "_______",
+        "_______",
+        "_______",
+        "_______",
+        "_______",
+    ], Some(Square::Yellow))]
     #[case::sw_b(&[
         "_______",
         "_______",
@@ -308,7 +451,38 @@ mod test {
         "_______",
         "_______",
     ], Some(Square::Yellow))]
-
+    #[case::se_t(&[
+        "Y______",
+        "_Y_____",
+        "__Y____",
+        "___Y___",
+        "_______",
+        "_______",
+    ], Some(Square::Yellow))]
+    #[case::se_b(&[
+        "_______",
+        "_______",
+        "Y______",
+        "_Y_____",
+        "__Y____",
+        "___Y___",
+    ], Some(Square::Yellow))]
+    #[case::nw_b(&[
+        "_______",
+        "_______",
+        "___Y___",
+        "____Y__",
+        "_____Y_",
+        "______Y",
+    ], Some(Square::Yellow))]
+    #[case::nw_t(&[
+        "___Y___",
+        "____Y__",
+        "_____Y_",
+        "______Y",
+        "_______",
+        "_______",
+    ], Some(Square::Yellow))]
     fn test_check_for_win(#[case] data: &[&str; HEIGHT], #[case] expected: Option<Square>) {
         let board = Board::new_from_str_vec(data);
 
