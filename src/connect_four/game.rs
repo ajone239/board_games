@@ -1,22 +1,18 @@
-use std::num::ParseIntError;
-
 use super::{
     board::{self, Board},
-    player::{self, Player},
+    player::Player,
     square::Square,
 };
+
+use anyhow::Result;
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
     #[error(transparent)]
     Board(#[from] board::Error),
-    #[error(transparent)]
-    Player(#[from] player::Error),
-    #[error(transparent)]
-    ParseInt(#[from] ParseIntError),
 }
 
-type ConnectFourPlayer = dyn Player<MoveData = usize, ErrorType = player::Error>;
+type ConnectFourPlayer = dyn Player<MoveData = usize>;
 
 pub struct Game {
     color_to_be_played: Square,
@@ -35,7 +31,7 @@ impl Game {
         }
     }
 
-    pub fn game_loop(&mut self) -> Result<(), Error> {
+    pub fn game_loop(&mut self) -> Result<()> {
         println!("Game Start: {:?} to move", self.color_to_be_played);
 
         loop {
@@ -72,7 +68,7 @@ impl Game {
         Ok(())
     }
 
-    fn play_move(&mut self, column: usize) -> Result<(), board::Error> {
+    fn play_move(&mut self, column: usize) -> Result<()> {
         self.board.apply_move(column, self.color_to_be_played)?;
 
         self.color_to_be_played.flip();
