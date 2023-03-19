@@ -1,8 +1,10 @@
 use anyhow::Result;
 
+mod bot;
 mod human;
 mod random;
 
+pub use bot::Bot;
 pub use human::Human;
 pub use random::Random;
 

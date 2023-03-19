@@ -3,9 +3,9 @@ use crate::connect_four::player::Player;
 use anyhow::Result;
 use rand::{thread_rng, Rng};
 
-pub struct Random {}
+pub struct Bot {}
 
-impl Player for Random {
+impl Player for Bot {
     type MoveData = usize;
 
     fn is_human(&self) -> bool {
