@@ -111,33 +111,20 @@ impl Board {
 
         // IDEA(austin): if this returned some sort of eval mapping coordinates to numbers of rows
         // this could be used for the bot
-        let mut directions = [true; 8];
+        let mut directions = [true; 4];
 
-        // TODO(austin): once testing is full play with what is needed
         for l in 1..4 {
             // North
             directions[0] &= self.check_in_bound_same_color(i + l, j, color);
 
-            // South
-            directions[1] &= false; // self.check_in_bound_same_color(i - l, j, color);
-
-            // East
-            directions[2] &= false; // self.check_in_bound_same_color(i, j + l, color);
-
             // West
-            directions[3] &= self.check_in_bound_same_color(i, j - l, color);
+            directions[1] &= self.check_in_bound_same_color(i, j - l, color);
 
             // North East
-            directions[4] &= self.check_in_bound_same_color(i + l, j + l, color);
+            directions[2] &= self.check_in_bound_same_color(i + l, j + l, color);
 
             // North West
-            directions[5] &= self.check_in_bound_same_color(i + l, j - l, color);
-
-            // South East
-            directions[6] &= false; // self.check_in_bound_same_color(i - l, j + l, color);
-
-            // South West
-            directions[7] &= false; // self.check_in_bound_same_color(i - l, j - l, color);
+            directions[3] &= self.check_in_bound_same_color(i + l, j - l, color);
         }
 
         directions.iter().fold(false, |acc, dir| acc | dir)
