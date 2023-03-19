@@ -1,7 +1,8 @@
-use std::{io, num::ParseIntError};
+use std::num::ParseIntError;
 
 use super::{
     board::{self, Board},
+    player::{self, Player},
     square::Square,
 };
 
@@ -10,22 +11,27 @@ pub enum Error {
     #[error(transparent)]
     Board(#[from] board::Error),
     #[error(transparent)]
-    Io(#[from] io::Error),
+    Player(#[from] player::Error),
     #[error(transparent)]
     ParseInt(#[from] ParseIntError),
 }
 
-#[derive(Default)]
+type ConnectFourPlayer = dyn Player<MoveData = usize, ErrorType = player::Error>;
+
 pub struct Game {
     color_to_be_played: Square,
     board: Board,
+    yellow_player: Box<ConnectFourPlayer>,
+    red_player: Box<ConnectFourPlayer>,
 }
 
 impl Game {
-    pub fn new() -> Self {
+    pub fn new(yellow_player: Box<ConnectFourPlayer>, red_player: Box<ConnectFourPlayer>) -> Self {
         Self {
             color_to_be_played: Square::Yellow,
             board: Board::new(),
+            yellow_player,
+            red_player,
         }
     }
 
@@ -33,17 +39,23 @@ impl Game {
         println!("Game Start: {:?} to move", self.color_to_be_played);
 
         loop {
-            println!();
-            println!("{}", self.board);
+            if self.get_current_player().is_human() {
+                println!();
+                println!("{}", self.board);
 
-            println!();
-            println!("{:?} to move.", self.color_to_be_played);
+                println!();
+                println!("{:?} to move.", self.color_to_be_played);
+            }
 
             loop {
                 println!("{:?}", self.board.list_valid_moves());
                 println!("Input the column you wish to play in:");
 
-                let player_move = self.get_move()?;
+                let player_move = {
+                    let player = self.get_current_player_mut();
+
+                    player.get_move()?
+                };
 
                 match self.play_move(player_move) {
                     Ok(_) => break,
@@ -52,11 +64,7 @@ impl Game {
             }
 
             if let Some(color) = self.board.check_for_win() {
-                println!();
-                println!();
-                println!("{}", self.board);
-                println!();
-                println!("{color:?} has won!!");
+                self.print_win(color);
                 break;
             }
         }
@@ -72,13 +80,27 @@ impl Game {
         Ok(())
     }
 
-    fn get_move(&self) -> Result<usize, Error> {
-        let mut buffer = String::new();
-        let stdin = io::stdin(); // We get `Stdin` here.
-        stdin.read_line(&mut buffer)?;
+    fn get_current_player(&self) -> &ConnectFourPlayer {
+        match self.color_to_be_played {
+            Square::Yellow => self.yellow_player.as_ref(),
+            Square::Red => self.red_player.as_ref(),
+            _ => unreachable!(),
+        }
+    }
 
-        let player_move: usize = buffer.trim().parse()?;
+    fn get_current_player_mut(&mut self) -> &mut ConnectFourPlayer {
+        match self.color_to_be_played {
+            Square::Yellow => self.yellow_player.as_mut(),
+            Square::Red => self.red_player.as_mut(),
+            _ => unreachable!(),
+        }
+    }
 
-        Ok(player_move)
+    fn print_win(&self, color: Square) {
+        println!();
+        println!();
+        println!("{}", self.board);
+        println!();
+        println!("{color:?} has won!!");
     }
 }

@@ -1,4 +1,4 @@
 mod board;
 pub mod game;
-mod player;
+pub mod player;
 mod square;
