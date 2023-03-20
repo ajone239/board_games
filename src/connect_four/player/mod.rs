@@ -1,3 +1,5 @@
+use crate::connect_four::board::Board;
+
 use anyhow::Result;
 
 mod bot;
@@ -12,5 +14,5 @@ pub trait Player {
     type MoveData;
 
     fn is_human(&self) -> bool;
-    fn get_move(&mut self) -> Result<Self::MoveData>;
+    fn get_move(&mut self, current_board: &Board) -> Result<Self::MoveData>;
 }

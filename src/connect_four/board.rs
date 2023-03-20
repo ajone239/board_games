@@ -43,6 +43,10 @@ impl Board {
     }
 
     pub fn apply_move(&mut self, column: usize, color: Square) -> Result<(), Error> {
+        if column > WIDTH - 1 {
+            return Err(Error::InvalidMove(column));
+        }
+
         let row = (0..HEIGHT).find(|row| self.board[*row][column] == Square::Empty);
 
         let row = match row {

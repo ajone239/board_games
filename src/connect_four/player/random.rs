@@ -1,7 +1,7 @@
-use crate::connect_four::player::Player;
+use crate::connect_four::{board::Board, player::Player};
 
 use anyhow::Result;
-use rand::{thread_rng, Rng};
+use rand::{seq::SliceRandom, thread_rng};
 
 pub struct Random {}
 
@@ -12,11 +12,12 @@ impl Player for Random {
         false
     }
 
-    fn get_move(&mut self) -> Result<Self::MoveData> {
+    fn get_move(&mut self, current_board: &Board) -> Result<Self::MoveData> {
         let mut rng = thread_rng();
+        let moves = current_board.list_valid_moves();
 
-        // TODO(austin) make this not a maigc number
-        let player_move: usize = rng.gen_range(0..=6);
+        // SAFETY: A user won't be asked to pick a move if there is a draw.
+        let player_move: usize = *moves.choose(&mut rng).unwrap();
 
         Ok(player_move)
     }

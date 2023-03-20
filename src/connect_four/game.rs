@@ -48,9 +48,21 @@ impl Game {
                 println!("Input the column you wish to play in:");
 
                 let player_move = {
-                    let player = self.get_current_player_mut();
+                    // TODO(austin): fix the weird borrow
+                    let board = &self.board;
+                    let player = match self.color_to_be_played {
+                        Square::Yellow => {
+                            let p = self.yellow_player.as_mut();
+                            p
+                        }
+                        Square::Red => {
+                            let p = self.red_player.as_mut();
+                            p
+                        }
+                        _ => unreachable!(),
+                    };
 
-                    player.get_move()?
+                    player.get_move(board)?
                 };
 
                 match self.play_move(player_move) {

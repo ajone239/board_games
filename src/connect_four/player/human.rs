@@ -1,4 +1,4 @@
-use crate::connect_four::player::Player;
+use crate::connect_four::{board::Board, player::Player};
 
 use std::io::stdin;
 
@@ -13,8 +13,12 @@ impl Player for Human {
         true
     }
 
-    fn get_move(&mut self) -> Result<Self::MoveData> {
+    fn get_move(&mut self, current_board: &Board) -> Result<Self::MoveData> {
         let mut buffer = String::new();
+
+        // The human will see the board, so it isn't needed.
+        // May be used for printing in the future
+        let _ = current_board;
 
         stdin().read_line(&mut buffer)?;
 
