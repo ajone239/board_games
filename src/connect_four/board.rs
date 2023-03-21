@@ -12,7 +12,7 @@ pub enum Error {
     InvalidMove(usize),
 }
 
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, Eq, PartialEq, Hash)]
 pub struct Board {
     board: [[Square; WIDTH]; HEIGHT],
 }
@@ -90,6 +90,74 @@ impl Board {
         open_columns
     }
 
+    pub fn eval(&self) -> isize {
+        let mut eval = 0;
+        for i in 0..HEIGHT {
+            for j in 0..WIDTH {
+                let color = self.board[i][j];
+                let i = i as isize;
+                let j = j as isize;
+
+                match color {
+                    Square::Yellow => eval += self.eval_square(i, j, color),
+                    Square::Red => eval -= self.eval_square(i, j, color),
+                    _ => continue,
+                };
+            }
+        }
+
+        eval
+    }
+
+    fn eval_square(&self, i: isize, j: isize, color: Square) -> isize {
+        if color == Square::Empty {
+            return 0;
+        }
+
+        let mut directions = [0; 4];
+
+        for l in 1..4 {
+            // North
+            if self.check_in_bound_same_color_or_empty((i + l), j, color) && directions[0] > 0 {
+                if self.board[i as usize][j as usize] == color {
+                    directions[0] += 1;
+                }
+            } else {
+                directions[0] = 0;
+            }
+
+            // West
+            if self.check_in_bound_same_color_or_empty(i, j - l, color) && directions[1] > 0 {
+                if self.board[i as usize][(j - l) as usize] == color {
+                    directions[1] += 1;
+                }
+            } else {
+                directions[1] = 0;
+            }
+
+            // North East
+            if self.check_in_bound_same_color_or_empty(i + l, j + l, color) && directions[2] > 0 {
+                if self.board[(i + l) as usize][(j + l) as usize] == color {
+                    directions[2] += 1;
+                }
+            } else {
+                directions[2] = 0;
+            }
+
+            // North West
+            directions[3] &= self.check_in_bound_same_color(i + l, j - l, color);
+            if self.check_in_bound_same_color_or_empty(i + l, j - l, color) && directions[3] > 0 {
+                if self.board[(i + l) as usize][(j - l) as usize] == color {
+                    directions[3] += 1;
+                }
+            } else {
+                directions[3] = 0;
+            }
+        }
+
+        directions.iter().fold(1, |acc, dir| acc + dir)
+    }
+
     pub fn check_for_win(&self) -> Option<Square> {
         // TODO(austin): Optimize this
         for i in 0..HEIGHT {
@@ -100,7 +168,7 @@ impl Board {
                     continue;
                 }
 
-                if self.check_for_color_win(i as isize, j as isize, color) {
+                if self.check_for_square_win(i as isize, j as isize, color) {
                     return Some(color);
                 }
             }
@@ -108,13 +176,11 @@ impl Board {
         None
     }
 
-    fn check_for_color_win(&self, i: isize, j: isize, color: Square) -> bool {
+    fn check_for_square_win(&self, i: isize, j: isize, color: Square) -> bool {
         if color == Square::Empty {
             return false;
         }
 
-        // IDEA(austin): if this returned some sort of eval mapping coordinates to numbers of rows
-        // this could be used for the bot
         let mut directions = [true; 4];
 
         for l in 1..4 {
@@ -140,6 +206,15 @@ impl Board {
         }
 
         self.board[i as usize][j as usize] == color
+    }
+
+    fn check_in_bound_same_color_or_empty(&self, i: isize, j: isize, color: Square) -> bool {
+        if i > HEIGHT as isize - 1 || j > WIDTH as isize - 1 || i < 0 || j < 0 {
+            return false;
+        }
+
+        self.board[i as usize][j as usize] == color
+            || self.board[i as usize][j as usize] == Square::Empty
     }
 }
 

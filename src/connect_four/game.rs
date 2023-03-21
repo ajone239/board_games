@@ -41,12 +41,11 @@ impl Game {
 
                 println!();
                 println!("{:?} to move.", self.color_to_be_played);
+                println!("{:?}", self.board.list_valid_moves());
+                println!("Input the column you wish to play in:");
             }
 
             loop {
-                println!("{:?}", self.board.list_valid_moves());
-                println!("Input the column you wish to play in:");
-
                 let player_move = {
                     // TODO(austin): fix the weird borrow
                     let board = &self.board;
@@ -65,8 +64,15 @@ impl Game {
                     player.get_move(board)?
                 };
 
+                if !self.get_current_player().is_human() {
+                    println!();
+                    println!("{:?} played {}.", self.color_to_be_played, player_move);
+                }
+
                 match self.play_move(player_move) {
-                    Ok(_) => break,
+                    Ok(_) => {
+                        break;
+                    }
                     Err(err) => println!("{err}"),
                 };
             }
