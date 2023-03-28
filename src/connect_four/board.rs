@@ -114,48 +114,61 @@ impl Board {
             return 0;
         }
 
-        let mut directions = [0; 4];
+        let mut directions = [Some(0); 4];
+
+        println!("{color}[{i},{j}]: {directions:?}");
 
         for l in 1..4 {
             // North
-            if self.check_in_bound_same_color_or_empty((i + l), j, color) && directions[0] > 0 {
-                if self.board[i as usize][j as usize] == color {
-                    directions[0] += 1;
+            println!("North");
+            if self.check_in_bound_same_color_or_empty(i + l, j, color) && directions[0].is_some() {
+                if self.board[(i + l) as usize][j as usize] == color {
+                    directions[0].map(|mut d| d += 1);
                 }
             } else {
-                directions[0] = 0;
+                directions[0] = None;
             }
 
             // West
-            if self.check_in_bound_same_color_or_empty(i, j - l, color) && directions[1] > 0 {
+            println!("West");
+            if self.check_in_bound_same_color_or_empty(i, j - l, color) && directions[1].is_some() {
                 if self.board[i as usize][(j - l) as usize] == color {
-                    directions[1] += 1;
+                    directions[1].map(|mut d| d += 1);
                 }
             } else {
-                directions[1] = 0;
+                directions[1] = None;
             }
 
             // North East
-            if self.check_in_bound_same_color_or_empty(i + l, j + l, color) && directions[2] > 0 {
+            println!("North East");
+            if self.check_in_bound_same_color_or_empty(i + l, j + l, color)
+                && directions[2].is_some()
+            {
                 if self.board[(i + l) as usize][(j + l) as usize] == color {
-                    directions[2] += 1;
+                    directions[2].map(|mut d| d += 1);
                 }
             } else {
-                directions[2] = 0;
+                directions[2] = None;
             }
 
             // North West
-            directions[3] &= self.check_in_bound_same_color(i + l, j - l, color);
-            if self.check_in_bound_same_color_or_empty(i + l, j - l, color) && directions[3] > 0 {
+            println!("North West");
+            if self.check_in_bound_same_color_or_empty(i + l, j - l, color)
+                && directions[3].is_some()
+            {
                 if self.board[(i + l) as usize][(j - l) as usize] == color {
-                    directions[3] += 1;
+                    directions[3] = directions[3].map(|d| d + 1);
                 }
             } else {
-                directions[3] = 0;
+                directions[3] = None;
             }
+            println!("{color}[{i},{j}]: {directions:?}");
         }
 
-        directions.iter().fold(1, |acc, dir| acc + dir)
+        println!("{color}[{i},{j}]: {directions:?}");
+
+        // TODO(austin): think harder about this
+        directions.iter().fold(1, |acc, dir| acc + dir.unwrap_or(0))
     }
 
     pub fn check_for_win(&self) -> Option<Square> {
@@ -213,8 +226,11 @@ impl Board {
             return false;
         }
 
-        self.board[i as usize][j as usize] == color
-            || self.board[i as usize][j as usize] == Square::Empty
+        let color_to_check = self.board[i as usize][j as usize];
+
+        println!("test::::   {color_to_check}[{i},{j}]");
+
+        color_to_check == color || color_to_check == Square::Empty
     }
 }
 
@@ -553,6 +569,43 @@ mod test {
         let board = Board::new_from_str_vec(data);
 
         let test = board.check_for_win();
+
+        assert_eq!(test, expected);
+    }
+
+    #[rstest]
+    #[case(&["_______", "_______", "_______", "_______", "_______", "_______"], 0)]
+    #[case(&["_______", "_______", "_______", "_______", "_______", "Y______"], 1)]
+    #[case(&["_______", "_______", "_______", "_______", "Y______", "Y______"], 2)]
+    #[case(&["_______", "_______", "_______", "Y______", "Y______", "Y______"], 3)]
+    #[case::sw_open(&[
+        "_______",
+        "_______",
+        "___Y___",
+        "_______",
+        "_Y_____",
+        "Y______",
+    ], 3)]
+    #[case::sw_blocked(&[
+        "_______",
+        "_______",
+        "___Y___",
+        "__R____",
+        "_Y_____",
+        "Y______",
+    ], 2)]
+    #[case::sw_full(&[
+        "_______",
+        "_______",
+        "___Y___",
+        "__RR___",
+        "_YRY___",
+        "YRRY___",
+    ], 5 - (3 + 3 + 2 + 2))]
+    fn test_eval(#[case] data: &[&str; HEIGHT], #[case] expected: isize) {
+        let board = Board::new_from_str_vec(data);
+
+        let test = board.eval();
 
         assert_eq!(test, expected);
     }
