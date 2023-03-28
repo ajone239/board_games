@@ -116,43 +116,37 @@ impl Board {
 
         let mut directions = [Some(0); 4];
 
-        println!("{color}[{i},{j}]: {directions:?}");
-
         for l in 1..4 {
             // North
-            println!("North");
             if self.check_in_bound_same_color_or_empty(i + l, j, color) && directions[0].is_some() {
                 if self.board[(i + l) as usize][j as usize] == color {
-                    directions[0].map(|mut d| d += 1);
+                    directions[0] = directions[0].map(|d| d + 1);
                 }
             } else {
                 directions[0] = None;
             }
 
             // West
-            println!("West");
             if self.check_in_bound_same_color_or_empty(i, j - l, color) && directions[1].is_some() {
                 if self.board[i as usize][(j - l) as usize] == color {
-                    directions[1].map(|mut d| d += 1);
+                    directions[1] = directions[1].map(|d| d + 1);
                 }
             } else {
                 directions[1] = None;
             }
 
             // North East
-            println!("North East");
             if self.check_in_bound_same_color_or_empty(i + l, j + l, color)
                 && directions[2].is_some()
             {
                 if self.board[(i + l) as usize][(j + l) as usize] == color {
-                    directions[2].map(|mut d| d += 1);
+                    directions[2] = directions[2].map(|d| d + 1);
                 }
             } else {
                 directions[2] = None;
             }
 
             // North West
-            println!("North West");
             if self.check_in_bound_same_color_or_empty(i + l, j - l, color)
                 && directions[3].is_some()
             {
@@ -162,10 +156,7 @@ impl Board {
             } else {
                 directions[3] = None;
             }
-            println!("{color}[{i},{j}]: {directions:?}");
         }
-
-        println!("{color}[{i},{j}]: {directions:?}");
 
         // TODO(austin): think harder about this
         directions.iter().fold(1, |acc, dir| acc + dir.unwrap_or(0))
@@ -227,8 +218,6 @@ impl Board {
         }
 
         let color_to_check = self.board[i as usize][j as usize];
-
-        println!("test::::   {color_to_check}[{i},{j}]");
 
         color_to_check == color || color_to_check == Square::Empty
     }
@@ -574,10 +563,10 @@ mod test {
     }
 
     #[rstest]
-    #[case(&["_______", "_______", "_______", "_______", "_______", "_______"], 0)]
-    #[case(&["_______", "_______", "_______", "_______", "_______", "Y______"], 1)]
-    #[case(&["_______", "_______", "_______", "_______", "Y______", "Y______"], 2)]
-    #[case(&["_______", "_______", "_______", "Y______", "Y______", "Y______"], 3)]
+    #[case::empty(&["_______", "_______", "_______", "_______", "_______", "_______"], 0)]
+    #[case::one_square(&["_______", "_______", "_______", "_______", "_______", "Y______"], 1)]
+    #[case::two_row(&["_______", "_______", "_______", "_______", "Y______", "Y______"], 3)]
+    #[case::three_row(&["_______", "_______", "_______", "Y______", "Y______", "Y______"], 6)]
     #[case::sw_open(&[
         "_______",
         "_______",
@@ -585,7 +574,7 @@ mod test {
         "_______",
         "_Y_____",
         "Y______",
-    ], 3)]
+    ], 6)]
     #[case::sw_blocked(&[
         "_______",
         "_______",
@@ -601,7 +590,7 @@ mod test {
         "__RR___",
         "_YRY___",
         "YRRY___",
-    ], 5 - (3 + 3 + 2 + 2))]
+    ], (1 + 1 + 1 + 1 + 1) - (3 + 3 + 2 + 1 + 3))]
     fn test_eval(#[case] data: &[&str; HEIGHT], #[case] expected: isize) {
         let board = Board::new_from_str_vec(data);
 
