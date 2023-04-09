@@ -46,7 +46,13 @@ impl Game {
             }
 
             loop {
-                let player_move = self.get_player_move()?;
+                let player_move = match self.get_player_move() {
+                    Ok(m) => m,
+                    Err(err) => {
+                        println!("{err}");
+                        continue;
+                    }
+                };
 
                 if !self.get_current_player().is_human() {
                     println!();
@@ -70,6 +76,8 @@ impl Game {
         Ok(())
     }
 
+    // Docstring
+    /// Get the player's move retying if the move is invalid.
     fn get_player_move(&mut self) -> Result<usize> {
         // TODO(austin): fix the weird borrow
         let board = &self.board;
@@ -85,15 +93,7 @@ impl Game {
             _ => unreachable!(),
         };
 
-        loop {
-            match player.get_move(board) {
-                Ok(m) => return Ok(m),
-                Err(err) => {
-                    println!("{:?}", err);
-                    continue;
-                }
-            }
-        }
+        player.get_move(board)
     }
 
     fn play_move(&mut self, column: usize) -> Result<()> {

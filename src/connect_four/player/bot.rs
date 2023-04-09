@@ -1,9 +1,22 @@
-use crate::connect_four::{board::Board, player::Player};
+use std::collections::HashMap;
+
+use crate::connect_four::{board::Board, player::Player, square::Square};
 
 use anyhow::Result;
 use rand::{seq::SliceRandom, thread_rng};
 
 pub struct Bot {}
+
+struct GameNode {
+    color: Square
+    player_move: usize,
+    evaluation: isize,
+    children: Vec<GameNode>,
+}
+
+struct GameTree {
+    tree: HashMap<Board, GameNode>,
+}
 
 impl Player for Bot {
     type MoveData = usize;
