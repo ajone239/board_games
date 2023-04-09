@@ -16,6 +16,13 @@ impl Square {
             _ => Square::Empty,
         }
     }
+    pub fn flip_into(&self) -> Self {
+        match self {
+            Square::Yellow => Square::Red,
+            Square::Red => Square::Yellow,
+            _ => Square::Empty,
+        }
+    }
 }
 
 impl Display for Square {

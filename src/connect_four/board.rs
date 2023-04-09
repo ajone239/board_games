@@ -12,7 +12,7 @@ pub enum Error {
     InvalidMove(usize),
 }
 
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Eq, PartialEq, Hash, Clone)]
 pub struct Board {
     board: [[Square; WIDTH]; HEIGHT],
 }
