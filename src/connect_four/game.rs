@@ -46,23 +46,7 @@ impl Game {
             }
 
             loop {
-                let player_move = {
-                    // TODO(austin): fix the weird borrow
-                    let board = &self.board;
-                    let player = match self.color_to_be_played {
-                        Square::Yellow => {
-                            let p = self.yellow_player.as_mut();
-                            p
-                        }
-                        Square::Red => {
-                            let p = self.red_player.as_mut();
-                            p
-                        }
-                        _ => unreachable!(),
-                    };
-
-                    player.get_move(board)?
-                };
+                let player_move = self.get_player_move()?;
 
                 if !self.get_current_player().is_human() {
                     println!();
@@ -84,6 +68,32 @@ impl Game {
         }
 
         Ok(())
+    }
+
+    fn get_player_move(&mut self) -> Result<usize> {
+        // TODO(austin): fix the weird borrow
+        let board = &self.board;
+        let player = match self.color_to_be_played {
+            Square::Yellow => {
+                let p = self.yellow_player.as_mut();
+                p
+            }
+            Square::Red => {
+                let p = self.red_player.as_mut();
+                p
+            }
+            _ => unreachable!(),
+        };
+
+        loop {
+            match player.get_move(board) {
+                Ok(m) => return Ok(m),
+                Err(err) => {
+                    println!("{:?}", err);
+                    continue;
+                }
+            }
+        }
     }
 
     fn play_move(&mut self, column: usize) -> Result<()> {

@@ -13,12 +13,20 @@ impl Player for Bot {
     }
 
     fn get_move(&mut self, current_board: &Board) -> Result<Self::MoveData> {
+        if current_board.is_empty() {
+            return Ok(self.get_random_move(current_board));
+        }
+
+        Ok(0)
+    }
+}
+
+impl Bot {
+    fn get_random_move(&self, current_board: &Board) -> usize {
         let mut rng = thread_rng();
         let moves = current_board.list_valid_moves();
 
         // SAFETY: A user won't be asked to pick a move if there is a draw.
-        let player_move: usize = *moves.choose(&mut rng).unwrap();
-
-        Ok(player_move)
+        *moves.choose(&mut rng).unwrap()
     }
 }

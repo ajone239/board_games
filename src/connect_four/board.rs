@@ -24,6 +24,12 @@ impl Board {
         }
     }
 
+    pub fn is_empty(&self) -> bool {
+        self.board
+            .iter()
+            .all(|row| row.iter().all(|square| square == &Square::Empty))
+    }
+
     #[cfg(test)]
     pub fn new_from_str_vec(rows: &[&str; HEIGHT]) -> Self {
         let mut board = [[Square::Empty; WIDTH]; HEIGHT];
