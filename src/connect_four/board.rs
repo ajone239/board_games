@@ -17,6 +17,12 @@ pub struct Board {
     board: [[Square; WIDTH]; HEIGHT],
 }
 
+#[derive(Debug, Eq, PartialEq)]
+pub enum GameResult {
+    Win(Square),
+    Draw,
+}
+
 impl Board {
     pub fn new() -> Self {
         Self {
@@ -28,6 +34,13 @@ impl Board {
         self.board
             .iter()
             .all(|row| row.iter().all(|square| square == &Square::Empty))
+    }
+
+    pub fn is_full(&self) -> bool {
+        !self
+            .board
+            .iter()
+            .any(|row| row.iter().any(|square| square == &Square::Empty))
     }
 
     #[cfg(test)]
@@ -156,8 +169,9 @@ impl Board {
         directions.iter().fold(1, |acc, dir| acc + dir.unwrap_or(0))
     }
 
-    pub fn check_for_win(&self) -> Option<Square> {
+    pub fn check_for_win(&self) -> Option<GameResult> {
         // TODO(austin): Optimize this
+        // Check for win
         for i in 0..HEIGHT {
             for j in 0..WIDTH {
                 let color = self.board[i][j];
@@ -167,9 +181,13 @@ impl Board {
                 }
 
                 if self.check_for_square_win(i as isize, j as isize, color) {
-                    return Some(color);
+                    return Some(GameResult::Win(color));
                 }
             }
+        }
+        // Check for draw
+        if self.is_full() {
+            return Some(GameResult::Draw);
         }
         None
     }
@@ -266,6 +284,8 @@ mod test {
         let board = Board::new_from_str_vec(data);
 
         assert_eq!(board, Board::new());
+        assert!(board.is_empty());
+        assert!(!board.is_full());
     }
 
     #[test]
@@ -610,5 +630,20 @@ mod test {
         let eval = board.eval_square(0, 0, Square::Yellow);
 
         assert_eq!(eval, 2);
+    }
+
+    #[test]
+    fn test_is_full() {
+        let board = Board::new_from_str_vec(&[
+            "_______", "_______", "_______", "_______", "_______", "YY_____",
+        ]);
+
+        assert_eq!(board.is_full(), false);
+
+        let board = Board::new_from_str_vec(&[
+            "YYYYYYY", "YYYYYYY", "YYYYYYY", "YYYYYYY", "YYYYYYY", "YYYYYYY",
+        ]);
+
+        assert_eq!(board.is_full(), true);
     }
 }

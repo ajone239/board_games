@@ -1,3 +1,5 @@
+use crate::connect_four::board::GameResult;
+
 use super::{
     board::{self, Board},
     player::Player,
@@ -67,8 +69,11 @@ impl Game {
                 };
             }
 
-            if let Some(color) = self.board.check_for_win() {
-                self.print_win(color);
+            if let Some(result) = self.board.check_for_win() {
+                match result {
+                    GameResult::Win(color) => self.print_win(color),
+                    GameResult::Draw => self.print_draw(),
+                }
                 break;
             }
         }
@@ -126,5 +131,13 @@ impl Game {
         println!("{}", self.board);
         println!();
         println!("{color:?} has won!!");
+    }
+
+    fn print_draw(&self) {
+        println!();
+        println!();
+        println!("{}", self.board);
+        println!();
+        println!("Draw!");
     }
 }

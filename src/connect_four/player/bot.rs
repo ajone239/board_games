@@ -8,7 +8,7 @@ use rand::{seq::SliceRandom, thread_rng};
 pub struct Bot {}
 
 struct GameNode {
-    color: Square
+    color: Square,
     player_move: usize,
     evaluation: isize,
     children: Vec<GameNode>,
@@ -30,7 +30,10 @@ impl Player for Bot {
             return Ok(self.get_random_move(current_board));
         }
 
-        Ok(0)
+        let moves = current_board.list_valid_moves();
+
+        // SAFETY: A user won't be asked to pick a move if there is a draw.
+        Ok(moves[0])
     }
 }
 
