@@ -117,44 +117,32 @@ impl Board {
         let mut directions = [Some(0); 4];
 
         for l in 1..4 {
-            // North
-            if self.check_in_bound_same_color_or_empty(i + l, j, color) && directions[0].is_some() {
-                if self.board[(i + l) as usize][j as usize] == color {
-                    directions[0] = directions[0].map(|d| d + 1);
-                }
-            } else {
-                directions[0] = None;
-            }
+            /*
+             * Check the board with the following mask pattern:
+             *
+             *  #  #  #
+             *   # # #
+             *    ###
+             *     ####
+             */
 
-            // West
-            if self.check_in_bound_same_color_or_empty(i, j - l, color) && directions[1].is_some() {
-                if self.board[i as usize][(j - l) as usize] == color {
-                    directions[1] = directions[1].map(|d| d + 1);
-                }
-            } else {
-                directions[1] = None;
-            }
+            let dir_coords = [
+                (i + l, j),     // North
+                (i, j + l),     // East
+                (i + l, j + l), // North East
+                (i + l, j - l), // North West
+            ];
 
-            // North East
-            if self.check_in_bound_same_color_or_empty(i + l, j + l, color)
-                && directions[2].is_some()
-            {
-                if self.board[(i + l) as usize][(j + l) as usize] == color {
-                    directions[2] = directions[2].map(|d| d + 1);
+            for (dir, (i, j)) in dir_coords.iter().enumerate() {
+                if self.check_in_bound_same_color_or_empty(*i, *j, color)
+                    && directions[dir].is_some()
+                {
+                    if self.board[*i as usize][*j as usize] == color {
+                        directions[dir] = directions[dir].map(|d| d + 1);
+                    }
+                } else {
+                    directions[dir] = None;
                 }
-            } else {
-                directions[2] = None;
-            }
-
-            // North West
-            if self.check_in_bound_same_color_or_empty(i + l, j - l, color)
-                && directions[3].is_some()
-            {
-                if self.board[(i + l) as usize][(j - l) as usize] == color {
-                    directions[3] = directions[3].map(|d| d + 1);
-                }
-            } else {
-                directions[3] = None;
             }
         }
 
@@ -188,17 +176,24 @@ impl Board {
         let mut directions = [true; 4];
 
         for l in 1..4 {
-            // North
-            directions[0] &= self.check_in_bound_same_color(i + l, j, color);
+            /*
+             * Check the board with the following mask pattern:
+             *
+             *  #  #  #
+             *   # # #
+             *    ###
+             *     ####
+             */
+            let dir_coords = [
+                (i + l, j),     // North
+                (i, j + l),     // East
+                (i + l, j + l), // North East
+                (i + l, j - l), // North West
+            ];
 
-            // West
-            directions[1] &= self.check_in_bound_same_color(i, j - l, color);
-
-            // North East
-            directions[2] &= self.check_in_bound_same_color(i + l, j + l, color);
-
-            // North West
-            directions[3] &= self.check_in_bound_same_color(i + l, j - l, color);
+            for (dir, (i, j)) in dir_coords.iter().enumerate() {
+                directions[dir] &= self.check_in_bound_same_color(*i, *j, color);
+            }
         }
 
         directions.iter().fold(false, |acc, dir| acc | dir)
@@ -597,5 +592,17 @@ mod test {
         let test = board.eval();
 
         assert_eq!(test, expected);
+    }
+
+    // Test eval_square
+    #[rstest]
+    fn test_eval_square() {
+        let board = Board::new_from_str_vec(&[
+            "_______", "_______", "_______", "_______", "_______", "YY_____",
+        ]);
+
+        let eval = board.eval_square(0, 0, Square::Yellow);
+
+        assert_eq!(eval, 2);
     }
 }
