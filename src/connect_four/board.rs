@@ -109,6 +109,10 @@ impl Board {
         open_columns
     }
 
+    pub fn is_valid_move(&self, column: usize) -> bool {
+        self.board[HEIGHT - 1][column] == Square::Empty
+    }
+
     pub fn eval(&self) -> isize {
         let mut eval = 0;
         for i in 0..HEIGHT {

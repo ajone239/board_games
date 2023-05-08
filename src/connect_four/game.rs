@@ -47,27 +47,9 @@ impl Game {
                 println!("Input the column you wish to play in:");
             }
 
-            loop {
-                let player_move = match self.get_player_move() {
-                    Ok(m) => m,
-                    Err(err) => {
-                        println!("{err}");
-                        continue;
-                    }
-                };
+            let player_move = self.play_move(player_move)?;
 
-                if !self.get_current_player().is_human() {
-                    println!();
-                    println!("{:?} played {}.", self.color_to_be_played, player_move);
-                }
-
-                match self.play_move(player_move) {
-                    Ok(_) => {
-                        break;
-                    }
-                    Err(err) => println!("{err}"),
-                };
-            }
+            self.color_to_be_played.flip();
 
             if let Some(result) = self.board.check_for_win() {
                 match result {
@@ -81,11 +63,33 @@ impl Game {
         Ok(())
     }
 
+    fn get_player_move_loop(&mut self) -> Result<usize> {
+        loop {
+            let player_move = match self.get_player_move() {
+                Ok(m) => m,
+                Err(err) => {
+                    println!("{err}");
+                    continue;
+                }
+            };
+
+            if !self.board.is_valid_move(player_move) {
+                println!("Invalid move.");
+                continue;
+            }
+
+            if !self.get_current_player().is_human() {
+                println!();
+                println!("{:?} played {}.", self.color_to_be_played, player_move);
+            }
+
+            break Ok(player_move);
+        }
+    }
+
     // Docstring
     /// Get the player's move retying if the move is invalid.
     fn get_player_move(&mut self) -> Result<usize> {
-        // TODO(austin): fix the weird borrow
-        let board = &self.board;
         let player = match self.color_to_be_played {
             Square::Yellow => {
                 let p = self.yellow_player.as_mut();
@@ -97,14 +101,11 @@ impl Game {
             }
             _ => unreachable!(),
         };
-
-        player.get_move(board)
+        player.get_move(&self.board)
     }
 
     fn play_move(&mut self, column: usize) -> Result<()> {
         self.board.apply_move(column, self.color_to_be_played)?;
-
-        self.color_to_be_played.flip();
 
         Ok(())
     }
@@ -117,6 +118,9 @@ impl Game {
         }
     }
 
+    // Rust doesn't allow partial borrowing of a struct. If it ever doest then this function can
+    // clean up some logic :).
+    #[allow(dead_code)]
     fn get_current_player_mut(&mut self) -> &mut ConnectFourPlayer {
         match self.color_to_be_played {
             Square::Yellow => self.yellow_player.as_mut(),
