@@ -47,7 +47,9 @@ impl Game {
                 println!("Input the column you wish to play in:");
             }
 
-            let player_move = self.play_move(player_move)?;
+            let player_move = self.get_player_move_loop()?;
+
+            self.play_move(player_move)?;
 
             self.color_to_be_played.flip();
 
