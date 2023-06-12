@@ -378,7 +378,7 @@ mod test {
         "R______",
         "R______"
     ],
-    Some(Square::Red))]
+    Some(GameResult::Win(Square::Red)))]
     #[case::vert_bm(&[
         "_______",
         "_______",
@@ -386,7 +386,7 @@ mod test {
         "_R_____",
         "_R_____",
         "_R_____",
-    ], Some(Square::Red))]
+    ], Some(GameResult::Win(Square::Red)))]
     #[case::vert_br(&[
         "_______",
         "_______",
@@ -394,7 +394,7 @@ mod test {
         "______R",
         "______R",
         "______R",
-    ], Some(Square::Red))]
+    ], Some(GameResult::Win(Square::Red)))]
     #[case::vert_ml(&[
         "_______",
         "R______",
@@ -402,7 +402,7 @@ mod test {
         "R______",
         "R______",
         "_______",
-    ], Some(Square::Red))]
+    ], Some(GameResult::Win(Square::Red)))]
     #[case::vert_mm(&[
         "_______",
         "_R_____",
@@ -410,7 +410,7 @@ mod test {
         "_R_____",
         "_R_____",
         "_______",
-    ], Some(Square::Red))]
+    ], Some(GameResult::Win(Square::Red)))]
     #[case::vert_mr(&[
         "_______",
         "______R",
@@ -418,7 +418,7 @@ mod test {
         "______R",
         "______R",
         "_______",
-    ], Some(Square::Red))]
+    ], Some(GameResult::Win(Square::Red)))]
     #[case::vert_tl(&[
         "R______",
         "R______",
@@ -426,7 +426,7 @@ mod test {
         "R______",
         "_______",
         "_______",
-    ], Some(Square::Red))]
+    ], Some(GameResult::Win(Square::Red)))]
     #[case::vert_tm(&[
         "_R_____",
         "_R_____",
@@ -434,7 +434,7 @@ mod test {
         "_R_____",
         "_______",
         "_______",
-    ], Some(Square::Red))]
+    ], Some(GameResult::Win(Square::Red)))]
     #[case::vert_tr(&[
         "______R",
         "______R",
@@ -442,7 +442,7 @@ mod test {
         "______R",
         "_______",
         "_______",
-    ], Some(Square::Red))]
+    ], Some(GameResult::Win(Square::Red)))]
     #[case::horz_bl(&[
         "_______",
         "_______",
@@ -450,7 +450,7 @@ mod test {
         "_______",
         "_______",
         "YYYY___",
-    ], Some(Square::Yellow))]
+    ], Some(GameResult::Win(Square::Yellow)))]
     #[case::horz_bm(&[
         "_______",
         "_______",
@@ -458,7 +458,7 @@ mod test {
         "_______",
         "_______",
         "_YYYY__",
-    ], Some(Square::Yellow))]
+    ], Some(GameResult::Win(Square::Yellow)))]
     #[case::horz_br(&[
         "_______",
         "_______",
@@ -466,7 +466,7 @@ mod test {
         "_______",
         "_______",
         "___YYYY",
-    ], Some(Square::Yellow))]
+    ], Some(GameResult::Win(Square::Yellow)))]
     #[case::horz_ml(&[
         "_______",
         "_______",
@@ -474,7 +474,7 @@ mod test {
         "YYYY___",
         "_______",
         "_______",
-    ], Some(Square::Yellow))]
+    ], Some(GameResult::Win(Square::Yellow)))]
     #[case::horz_mm(&[
         "_______",
         "_______",
@@ -482,7 +482,7 @@ mod test {
         "_YYYY__",
         "_______",
         "_______",
-    ], Some(Square::Yellow))]
+    ], Some(GameResult::Win(Square::Yellow)))]
     #[case::horz_mr(&[
         "_______",
         "_______",
@@ -490,7 +490,7 @@ mod test {
         "___YYYY",
         "_______",
         "_______",
-    ], Some(Square::Yellow))]
+    ], Some(GameResult::Win(Square::Yellow)))]
     #[case::horz_tl(&[
         "YYYY___",
         "_______",
@@ -498,7 +498,7 @@ mod test {
         "_______",
         "_______",
         "_______",
-    ], Some(Square::Yellow))]
+    ], Some(GameResult::Win(Square::Yellow)))]
     #[case::horz_tm(&[
         "_YYYY__",
         "_______",
@@ -506,7 +506,7 @@ mod test {
         "_______",
         "_______",
         "_______",
-    ], Some(Square::Yellow))]
+    ], Some(GameResult::Win(Square::Yellow)))]
     #[case::horz_tr(&[
         "___YYYY",
         "_______",
@@ -514,7 +514,7 @@ mod test {
         "_______",
         "_______",
         "_______",
-    ], Some(Square::Yellow))]
+    ], Some(GameResult::Win(Square::Yellow)))]
     #[case::sw_b(&[
         "_______",
         "_______",
@@ -522,7 +522,7 @@ mod test {
         "__Y____",
         "_Y_____",
         "Y______",
-    ], Some(Square::Yellow))]
+    ], Some(GameResult::Win(Square::Yellow)))]
     #[case::sw_t(&[
         "___Y___",
         "__Y____",
@@ -530,7 +530,7 @@ mod test {
         "Y______",
         "_______",
         "_______",
-    ], Some(Square::Yellow))]
+    ], Some(GameResult::Win(Square::Yellow)))]
     #[case::ne_b(&[
         "_______",
         "_______",
@@ -538,7 +538,7 @@ mod test {
         "_____Y_",
         "____Y__",
         "___Y___",
-    ], Some(Square::Yellow))]
+    ], Some(GameResult::Win(Square::Yellow)))]
     #[case::ne_t(&[
         "______Y",
         "_____Y_",
@@ -546,7 +546,7 @@ mod test {
         "___Y___",
         "_______",
         "_______",
-    ], Some(Square::Yellow))]
+    ], Some(GameResult::Win(Square::Yellow)))]
     #[case::se_t(&[
         "Y______",
         "_Y_____",
@@ -554,7 +554,7 @@ mod test {
         "___Y___",
         "_______",
         "_______",
-    ], Some(Square::Yellow))]
+    ], Some(GameResult::Win(Square::Yellow)))]
     #[case::se_b(&[
         "_______",
         "_______",
@@ -562,7 +562,7 @@ mod test {
         "_Y_____",
         "__Y____",
         "___Y___",
-    ], Some(Square::Yellow))]
+    ], Some(GameResult::Win(Square::Yellow)))]
     #[case::nw_b(&[
         "_______",
         "_______",
@@ -570,7 +570,7 @@ mod test {
         "____Y__",
         "_____Y_",
         "______Y",
-    ], Some(Square::Yellow))]
+    ], Some(GameResult::Win(Square::Yellow)))]
     #[case::nw_t(&[
         "___Y___",
         "____Y__",
@@ -578,8 +578,16 @@ mod test {
         "______Y",
         "_______",
         "_______",
-    ], Some(Square::Yellow))]
-    fn test_check_for_win(#[case] data: &[&str; HEIGHT], #[case] expected: Option<Square>) {
+    ], Some(GameResult::Win(Square::Yellow)))]
+    #[case::draw(&[
+        "RYRYRYR",
+        "RYRYRYR",
+        "RYRYRYR",
+        "YRYRYRY",
+        "YRYRYRY",
+        "YRYRYRY",
+    ], Some(GameResult::Draw))]
+    fn test_check_for_win(#[case] data: &[&str; HEIGHT], #[case] expected: Option<GameResult>) {
         let board = Board::new_from_str_vec(data);
 
         let test = board.check_for_win();
