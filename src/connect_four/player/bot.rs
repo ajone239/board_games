@@ -22,7 +22,11 @@ impl Player for Bot {
         }
 
         let mut tree = GameTree::new();
-        tree.init_tree(current_board, self.color.flip_into());
+
+        let opponent_color = self.color.flip_into();
+        tree.init_tree(current_board, opponent_color);
+        tree.build_tree(current_board, opponent_color, 0);
+
         println!("{}", (0..20).map(|_| "-").collect::<String>());
         println!("{tree}");
         println!("{}", (0..20).map(|_| "-").collect::<String>());
@@ -84,12 +88,13 @@ impl Display for GameTree {
 
 impl GameTree {
     // Should be an odd number
-    const MAX_DEPTH: usize = 3;
+    const MAX_DEPTH: usize = 1;
     fn new() -> Self {
         Self {
             tree: HashMap::new(),
         }
     }
+
     fn init_tree(&mut self, starting_board: &Board, starting_color: Square) {
         self.tree.insert(
             starting_board.clone(),
@@ -102,8 +107,8 @@ impl GameTree {
                 children: vec![],
             },
         );
-        self.build_tree(starting_board, starting_color, 0);
     }
+
     fn build_tree(&mut self, board: &Board, color: Square, tree_depth: usize) {
         if tree_depth >= Self::MAX_DEPTH {
             return;
