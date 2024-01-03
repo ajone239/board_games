@@ -118,8 +118,6 @@ impl Board {
         for i in 0..HEIGHT {
             for j in 0..WIDTH {
                 let color = self.board[i][j];
-                let i = i as isize;
-                let j = j as isize;
 
                 match color {
                     Square::Yellow => eval += self.eval_square(i, j, color),
@@ -132,7 +130,7 @@ impl Board {
         eval
     }
 
-    fn eval_square(&self, i: isize, j: isize, color: Square) -> isize {
+    fn eval_square(&self, i: usize, j: usize, color: Square) -> isize {
         if color == Square::Empty {
             return 0;
         }
@@ -150,10 +148,10 @@ impl Board {
              */
 
             let dir_coords = [
-                (i + l, j),     // North
-                (i, j + l),     // East
-                (i + l, j + l), // North East
-                (i + l, j - l), // North West
+                (i + l, j),                      // North
+                (i, j + l),                      // East
+                (i + l, j + l),                  // North East
+                (i + l, j.overflowing_sub(l).0), // North West
             ];
 
             for (dir, (i, j)) in dir_coords.iter().enumerate() {
@@ -184,7 +182,7 @@ impl Board {
                     continue;
                 }
 
-                if self.check_for_square_win(i as isize, j as isize, color) {
+                if self.check_for_square_win(i, j, color) {
                     return Some(GameResult::Win(color));
                 }
             }
@@ -196,7 +194,7 @@ impl Board {
         None
     }
 
-    fn check_for_square_win(&self, i: isize, j: isize, color: Square) -> bool {
+    fn check_for_square_win(&self, i: usize, j: usize, color: Square) -> bool {
         if color == Square::Empty {
             return false;
         }
@@ -213,10 +211,10 @@ impl Board {
              *     ####
              */
             let dir_coords = [
-                (i + l, j),     // North
-                (i, j + l),     // East
-                (i + l, j + l), // North East
-                (i + l, j - l), // North West
+                (i + l, j),                      // North
+                (i, j + l),                      // East
+                (i + l, j + l),                  // North East
+                (i + l, j.overflowing_sub(l).0), // North West
             ];
 
             for (dir, (i, j)) in dir_coords.iter().enumerate() {
@@ -227,16 +225,16 @@ impl Board {
         directions.iter().fold(false, |acc, dir| acc | dir)
     }
 
-    fn check_in_bound_same_color(&self, i: isize, j: isize, color: Square) -> bool {
-        if i > HEIGHT as isize - 1 || j > WIDTH as isize - 1 || i < 0 || j < 0 {
+    fn check_in_bound_same_color(&self, i: usize, j: usize, color: Square) -> bool {
+        if i > HEIGHT - 1 || j > WIDTH - 1 {
             return false;
         }
 
         self.board[i as usize][j as usize] == color
     }
 
-    fn check_in_bound_same_color_or_empty(&self, i: isize, j: isize, color: Square) -> bool {
-        if i > HEIGHT as isize - 1 || j > WIDTH as isize - 1 || i < 0 || j < 0 {
+    fn check_in_bound_same_color_or_empty(&self, i: usize, j: usize, color: Square) -> bool {
+        if i > HEIGHT - 1 || j > WIDTH - 1 {
             return false;
         }
 
@@ -607,7 +605,15 @@ mod test {
         "_______",
         "_Y_____",
         "Y______",
-    ], 6)]
+    ], 3 + 2 + 1)]
+    #[case::sw_blocked(&[
+        "_______",
+        "_______",
+        "___R___",
+        "__Y____",
+        "_R_____",
+        "R______",
+    ], 1 - (1 + 1 + 1))]
     #[case::sw_blocked(&[
         "_______",
         "_______",
@@ -615,7 +621,7 @@ mod test {
         "__R____",
         "_Y_____",
         "Y______",
-    ], 2)]
+    ], (1 + 1 + 1) - 1)]
     #[case::sw_full(&[
         "_______",
         "_______",
